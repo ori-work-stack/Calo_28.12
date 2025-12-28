@@ -9,7 +9,6 @@ export function useBackgroundRefetch() {
     const refetchStaleData = () => {
       const today = new Date().toISOString().split("T")[0];
 
-      // Refetch critical queries that might be stale
       queryClient.refetchQueries({
         queryKey: queryKeys.meals,
         type: "active",
@@ -23,8 +22,7 @@ export function useBackgroundRefetch() {
       });
     };
 
-    // Set up periodic background refresh every 5 minutes
-    const intervalId = setInterval(refetchStaleData, 5 * 60 * 1000);
+    const intervalId = setInterval(refetchStaleData, 30 * 60 * 1000);
 
     return () => {
       clearInterval(intervalId);

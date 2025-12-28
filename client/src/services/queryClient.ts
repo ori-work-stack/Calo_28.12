@@ -37,62 +37,28 @@ const queryClient = new QueryClient({
   mutationCache,
   defaultOptions: {
     queries: {
-      // Retry configuration
       retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors (client errors)
         if (error?.response?.status >= 400 && error?.response?.status < 500) {
           return false;
         }
-        // Retry up to 2 times for other errors
-        return failureCount < 2;
+        return failureCount < 1;
       },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 
-      // Cache configuration - very aggressive for immediate updates
-      staleTime: 0, // Always consider data stale for immediate updates
-      gcTime: 2 * 60 * 1000, // 2 minutes - shorter cache garbage collection
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
 
-      // Refetch configuration - very aggressive for real-time feel
-      refetchOnWindowFocus: true,
-      refetchOnMount: "always", // Always refetch on mount
-      refetchOnReconnect: "always",
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: true,
       refetchInterval: false,
 
-      // Performance optimizations
-      structuralSharing: true, // Enable structural sharing for better performance
-
-      // Network mode - handle offline scenarios
+      structuralSharing: true,
       networkMode: "online",
     },
     mutations: {
       retry: 1,
       networkMode: "online",
-      // Add onSuccess callback for automatic invalidation
-      onSuccess: async (data, variables, context) => {
-        console.log("🔄 Mutation successful, triggering cache refresh");
-
-        // Invalidate all relevant queries immediately
-        await Promise.allSettled([
-          queryClient.invalidateQueries({ queryKey: ["meals"] }),
-          queryClient.invalidateQueries({ queryKey: ["dailyStats"] }),
-          queryClient.invalidateQueries({ queryKey: ["statistics"] }),
-          queryClient.invalidateQueries({ queryKey: ["calendar"] }),
-          queryClient.invalidateQueries({ queryKey: ["recent-meals"] }),
-          queryClient.invalidateQueries({ queryKey: ["globalStats"] }),
-          queryClient.invalidateQueries({ queryKey: ["shoppingList"] }),
-        ]);
-
-        // Force immediate refetch of critical data
-        await Promise.allSettled([
-          queryClient.refetchQueries({ queryKey: ["meals"], type: "all" }),
-          queryClient.refetchQueries({
-            queryKey: ["shoppingList"],
-            type: "all",
-          }),
-        ]);
-
-        console.log("✅ Cache invalidation and refetch completed");
-      },
     },
   },
 });
