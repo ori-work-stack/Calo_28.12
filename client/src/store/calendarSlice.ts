@@ -290,10 +290,15 @@ const calendarSlice = createSlice({
         // Don't set loading for statistics to avoid UI flicker
       })
       .addCase(getStatistics.fulfilled, (state, action) => {
-        state.statistics = action.payload;
+        if (action.payload) {
+          state.statistics = action.payload;
+        } else {
+          console.warn("⚠️ Calendar statistics returned null - keeping previous state");
+        }
       })
       .addCase(getStatistics.rejected, (state, action) => {
-        console.warn("Statistics fetch failed:", action.payload);
+        console.warn("⚠️ Statistics fetch failed (rejected):", action.payload);
+        // Keep existing statistics if fetch fails
       })
 
       // Add event

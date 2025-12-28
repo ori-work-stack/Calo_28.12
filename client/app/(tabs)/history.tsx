@@ -207,6 +207,8 @@ const SwipeableMealCard = ({
   const dispatch = useDispatch<AppDispatch>();
   const [isExpanded, setIsExpanded] = useState(false);
   const [savingRatings, setSavingRatings] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCopyConfirm, setShowCopyConfirm] = useState(false);
   const [localMealData, setLocalMealData] = useState({
     taste_rating: meal.taste_rating || 0,
     satiety_rating: meal.satiety_rating || 0,
@@ -215,6 +217,7 @@ const SwipeableMealCard = ({
     is_favorite: meal.is_favorite || false,
   });
   const { immediateRefresh } = useMealDataRefresh();
+  const swipeableRef = React.useRef<any>(null);
 
   const animatedHeight = useState(new Animated.Value(0))[0];
   const scaleAnim = useState(new Animated.Value(1))[0];
@@ -303,49 +306,75 @@ const SwipeableMealCard = ({
     }
   };
 
+  const handleCopyPress = () => {
+    setShowCopyConfirm(true);
+    swipeableRef.current?.close();
+  };
+
+  const handleDeletePress = () => {
+    setShowDeleteConfirm(true);
+    swipeableRef.current?.close();
+  };
+
+  const confirmCopy = () => {
+    setShowCopyConfirm(false);
+    onDuplicate(meal.id || meal.meal_id?.toString());
+  };
+
+  const confirmDelete = () => {
+    setShowDeleteConfirm(false);
+    onDelete(meal.id || meal.meal_id?.toString());
+  };
+
   const renderLeftActions = () => (
     <View style={styles.swipeActionContainer}>
-      <LinearGradient
-        colors={["#34D399", "#10B981"]}
-        style={styles.swipeAction}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+      <TouchableOpacity
+        style={styles.swipeActionTouchable}
+        onPress={handleCopyPress}
+        activeOpacity={0.9}
       >
-        <TouchableOpacity
-          style={styles.swipeActionButton}
-          onPress={() => onDuplicate(meal.id || meal.meal_id?.toString())}
+        <LinearGradient
+          colors={["#34D399", "#10B981"]}
+          style={styles.swipeAction}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
         >
-          <View style={styles.swipeIconContainer}>
-            <Copy size={20} color="#ffffff" strokeWidth={2.5} />
+          <View style={styles.swipeActionContent}>
+            <View style={styles.swipeIconContainer}>
+              <Copy size={22} color="#ffffff" strokeWidth={2.5} />
+            </View>
+            <Text style={styles.swipeActionText}>
+              {t("history.actions.copy")}
+            </Text>
           </View>
-          <Text style={styles.swipeActionText}>
-            {t("history.actions.copy")}
-          </Text>
-        </TouchableOpacity>
-      </LinearGradient>
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
 
   const renderRightActions = () => (
     <View style={styles.swipeActionContainer}>
-      <LinearGradient
-        colors={["#F87171", "#EF4444"]}
-        style={styles.swipeAction}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+      <TouchableOpacity
+        style={styles.swipeActionTouchable}
+        onPress={handleDeletePress}
+        activeOpacity={0.9}
       >
-        <TouchableOpacity
-          style={styles.swipeActionButton}
-          onPress={() => onDelete(meal.id || meal.meal_id?.toString())}
+        <LinearGradient
+          colors={["#F87171", "#EF4444"]}
+          style={styles.swipeAction}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
         >
-          <View style={styles.swipeIconContainer}>
-            <Trash2 size={20} color="#ffffff" strokeWidth={2.5} />
+          <View style={styles.swipeActionContent}>
+            <View style={styles.swipeIconContainer}>
+              <Trash2 size={22} color="#ffffff" strokeWidth={2.5} />
+            </View>
+            <Text style={styles.swipeActionText}>
+              {t("history.actions.delete")}
+            </Text>
           </View>
-          <Text style={styles.swipeActionText}>
-            {t("history.actions.delete")}
-          </Text>
-        </TouchableOpacity>
-      </LinearGradient>
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
 
@@ -407,6 +436,7 @@ const SwipeableMealCard = ({
   return (
     <View style={styles.swipeContainer}>
       <Swipeable
+        ref={swipeableRef}
         renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}
         rightThreshold={70}
@@ -827,6 +857,100 @@ const SwipeableMealCard = ({
           </Animated.View>
         </View>
       </Swipeable>
+
+      <Modal
+        visible={showCopyConfirm}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowCopyConfirm(false)}
+      >
+        <BlurView intensity={40} tint="dark" style={styles.confirmModalOverlay}>
+          <View style={[styles.confirmModal, { backgroundColor: colors.card }]}>
+            <View style={[styles.confirmIconContainer, { backgroundColor: "#DCFCE7" }]}>
+              <Copy size={32} color="#10B981" strokeWidth={2.5} />
+            </View>
+            <Text style={[styles.confirmTitle, { color: colors.text }]}>
+              {t("history.confirm.copyTitle")}
+            </Text>
+            <Text style={[styles.confirmMessage, { color: colors.textSecondary }]}>
+              {t("history.confirm.copyMessage")}
+            </Text>
+            <View style={styles.confirmActions}>
+              <TouchableOpacity
+                style={[styles.confirmCancelButton, { backgroundColor: colors.background }]}
+                onPress={() => setShowCopyConfirm(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.confirmCancelText, { color: colors.text }]}>
+                  {t("common.cancel")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={confirmCopy}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={["#34D399", "#10B981"]}
+                  style={styles.confirmButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Copy size={18} color="#FFFFFF" strokeWidth={2.5} />
+                  <Text style={styles.confirmButtonText}>{t("history.actions.copy")}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
+
+      <Modal
+        visible={showDeleteConfirm}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowDeleteConfirm(false)}
+      >
+        <BlurView intensity={40} tint="dark" style={styles.confirmModalOverlay}>
+          <View style={[styles.confirmModal, { backgroundColor: colors.card }]}>
+            <View style={[styles.confirmIconContainer, { backgroundColor: "#FEE2E2" }]}>
+              <Trash2 size={32} color="#EF4444" strokeWidth={2.5} />
+            </View>
+            <Text style={[styles.confirmTitle, { color: colors.text }]}>
+              {t("history.confirm.deleteTitle")}
+            </Text>
+            <Text style={[styles.confirmMessage, { color: colors.textSecondary }]}>
+              {t("history.confirm.deleteMessage")}
+            </Text>
+            <View style={styles.confirmActions}>
+              <TouchableOpacity
+                style={[styles.confirmCancelButton, { backgroundColor: colors.background }]}
+                onPress={() => setShowDeleteConfirm(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.confirmCancelText, { color: colors.text }]}>
+                  {t("common.cancel")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={confirmDelete}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={["#F87171", "#EF4444"]}
+                  style={styles.confirmButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Trash2 size={18} color="#FFFFFF" strokeWidth={2.5} />
+                  <Text style={styles.confirmButtonText}>{t("history.actions.delete")}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
     </View>
   );
 };
@@ -905,33 +1029,16 @@ export default function HistoryScreen() {
 
   const handleRemoveMeal = useCallback(
     async (mealId: string) => {
-      Alert.alert(
-        t("history.messages.deleteMeal"),
-        t("history.messages.deleteConfirmation"),
-        [
-          { text: t("common.cancel"), style: "cancel" },
-          {
-            text: t("common.delete"),
-            style: "destructive",
-            onPress: async () => {
-              try {
-                await dispatch(removeMeal(mealId)).unwrap();
-                Alert.alert(
-                  t("common.success"),
-                  t("history.messages.mealDeleted")
-                );
-                refreshMealData();
-              } catch (error) {
-                console.error("Failed to remove meal:", error);
-                Alert.alert(
-                  t("common.error"),
-                  t("history.messages.deleteFailed")
-                );
-              }
-            },
-          },
-        ]
-      );
+      try {
+        await dispatch(removeMeal(mealId)).unwrap();
+        refreshMealData();
+      } catch (error) {
+        console.error("Failed to remove meal:", error);
+        Alert.alert(
+          t("common.error"),
+          t("history.messages.deleteFailed")
+        );
+      }
     },
     [dispatch, refreshMealData, t]
   );
@@ -1966,52 +2073,156 @@ const styles = StyleSheet.create({
   swipeActionContainer: {
     justifyContent: "center",
     alignItems: "center",
-    width: 90,
-    height: "100%",
+    width: 100,
+    marginHorizontal: 0,
+  },
+
+  swipeActionTouchable: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   swipeAction: {
     flex: 1,
     width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 16,
-    marginVertical: 4,
-    marginHorizontal: 4,
+    borderRadius: 20,
     overflow: "hidden",
+    marginVertical: 0,
+    marginHorizontal: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
 
-  swipeActionButton: {
+  swipeActionContent: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    width: "100%",
+    paddingVertical: 16,
+    paddingHorizontal: 12,
   },
 
   swipeIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 4,
   },
 
   swipeActionText: {
     color: "#ffffff",
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "800",
     textAlign: "center",
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
     textTransform: "uppercase",
+    textShadowColor: "rgba(0, 0, 0, 0.15)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
+  confirmModalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+
+  confirmModal: {
+    width: "90%",
+    maxWidth: 400,
+    borderRadius: 24,
+    padding: 28,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+
+  confirmIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  confirmTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 12,
+    textAlign: "center",
+    letterSpacing: -0.5,
+  },
+
+  confirmMessage: {
+    fontSize: 15,
+    fontWeight: "500",
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 28,
+    letterSpacing: -0.2,
+  },
+
+  confirmActions: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+
+  confirmCancelButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  confirmCancelText: {
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: -0.3,
+  },
+
+  confirmButton: {
+    flex: 1,
+    borderRadius: 14,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+
+  confirmButtonGradient: {
+    flexDirection: "row",
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -0.3,
   },
 
   expandedSection: {

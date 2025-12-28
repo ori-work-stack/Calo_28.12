@@ -292,6 +292,12 @@
       "copy": "Copy",
       "delete": "Delete"
     },
+    "confirm": {
+      "copyTitle": "Copy Meal?",
+      "copyMessage": "This will duplicate the meal to today's date. You can then edit it if needed.",
+      "deleteTitle": "Delete Meal?",
+      "deleteMessage": "This action cannot be undone. The meal will be permanently removed from your history."
+    },
     "filter": {
       "title": "Filter & Sort",
       "subtitle": "Customize your meal view",
