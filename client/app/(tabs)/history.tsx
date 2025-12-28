@@ -327,25 +327,20 @@ const SwipeableMealCard = ({
   };
 
   const renderLeftActions = () => (
-    <View style={styles.swipeActionContainer}>
+    <View style={styles.swipeActionWrapper}>
       <TouchableOpacity
-        style={styles.swipeActionTouchable}
+        style={styles.swipeActionButton}
         onPress={handleCopyPress}
-        activeOpacity={0.9}
+        activeOpacity={0.85}
       >
         <LinearGradient
-          colors={["#34D399", "#10B981"]}
-          style={styles.swipeAction}
+          colors={["#10B981", "#059669"]}
+          style={styles.swipeActionGradient}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          end={{ x: 0, y: 1 }}
         >
-          <View style={styles.swipeActionContent}>
-            <View style={styles.swipeIconContainer}>
-              <Copy size={22} color="#ffffff" strokeWidth={2.5} />
-            </View>
-            <Text style={styles.swipeActionText}>
-              {t("history.actions.copy")}
-            </Text>
+          <View style={styles.swipeIconWrapper}>
+            <Copy size={24} color="#FFFFFF" strokeWidth={2.5} />
           </View>
         </LinearGradient>
       </TouchableOpacity>
@@ -353,25 +348,20 @@ const SwipeableMealCard = ({
   );
 
   const renderRightActions = () => (
-    <View style={styles.swipeActionContainer}>
+    <View style={styles.swipeActionWrapper}>
       <TouchableOpacity
-        style={styles.swipeActionTouchable}
+        style={styles.swipeActionButton}
         onPress={handleDeletePress}
-        activeOpacity={0.9}
+        activeOpacity={0.85}
       >
         <LinearGradient
-          colors={["#F87171", "#EF4444"]}
-          style={styles.swipeAction}
+          colors={["#EF4444", "#DC2626"]}
+          style={styles.swipeActionGradient}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          end={{ x: 0, y: 1 }}
         >
-          <View style={styles.swipeActionContent}>
-            <View style={styles.swipeIconContainer}>
-              <Trash2 size={22} color="#ffffff" strokeWidth={2.5} />
-            </View>
-            <Text style={styles.swipeActionText}>
-              {t("history.actions.delete")}
-            </Text>
+          <View style={styles.swipeIconWrapper}>
+            <Trash2 size={24} color="#FFFFFF" strokeWidth={2.5} />
           </View>
         </LinearGradient>
       </TouchableOpacity>
@@ -439,10 +429,11 @@ const SwipeableMealCard = ({
         ref={swipeableRef}
         renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}
-        rightThreshold={70}
-        leftThreshold={70}
+        rightThreshold={40}
+        leftThreshold={40}
         overshootLeft={false}
         overshootRight={false}
+        friction={2}
       >
         <View style={[styles.mealCard, { backgroundColor: colors.card }]}>
           <TouchableOpacity
@@ -1830,13 +1821,17 @@ const styles = StyleSheet.create({
   },
 
   insightsCard: {
-    marginHorizontal: 20,
     marginTop: 12,
     marginBottom: 24,
     borderRadius: 24,
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.2)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
 
   insightsBlur: {
@@ -1927,10 +1922,14 @@ const styles = StyleSheet.create({
   mealCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 24,
-    marginBottom: 16,
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.03)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
 
   cardContent: {
@@ -2070,67 +2069,45 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  swipeActionContainer: {
+  swipeActionWrapper: {
     justifyContent: "center",
     alignItems: "center",
-    width: 100,
-    marginHorizontal: 0,
-  },
-
-  swipeActionTouchable: {
-    flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  swipeAction: {
-    flex: 1,
-    width: "100%",
-    borderRadius: 20,
-    overflow: "hidden",
     marginVertical: 0,
-    marginHorizontal: 8,
+  },
+
+  swipeActionButton: {
+    width: 80,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 10,
+  },
+
+  swipeActionGradient: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-
-  swipeActionContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-  },
-
-  swipeIconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
+    shadowRadius: 12,
+    elevation: 6,
   },
 
-  swipeActionText: {
-    color: "#ffffff",
-    fontSize: 13,
-    fontWeight: "800",
-    textAlign: "center",
-    letterSpacing: 0.3,
-    textTransform: "uppercase",
-    textShadowColor: "rgba(0, 0, 0, 0.15)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  swipeIconWrapper: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   confirmModalOverlay: {
@@ -2141,42 +2118,48 @@ const styles = StyleSheet.create({
   },
 
   confirmModal: {
-    width: "90%",
-    maxWidth: 400,
-    borderRadius: 24,
-    padding: 28,
+    width: "88%",
+    maxWidth: 380,
+    borderRadius: 28,
+    padding: 32,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 24,
+    elevation: 12,
   },
 
   confirmIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   confirmTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "800",
-    marginBottom: 12,
+    marginBottom: 14,
     textAlign: "center",
-    letterSpacing: -0.5,
+    letterSpacing: -0.6,
   },
 
   confirmMessage: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "500",
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 28,
-    letterSpacing: -0.2,
+    lineHeight: 24,
+    marginBottom: 32,
+    letterSpacing: -0.3,
+    opacity: 0.8,
   },
 
   confirmActions: {
@@ -2187,42 +2170,44 @@ const styles = StyleSheet.create({
 
   confirmCancelButton: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 14,
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(0,0,0,0.08)",
   },
 
   confirmCancelText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "700",
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
 
   confirmButton: {
     flex: 1,
-    borderRadius: 14,
+    borderRadius: 16,
     overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
 
   confirmButtonGradient: {
     flexDirection: "row",
-    paddingVertical: 14,
+    paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 10,
   },
 
   confirmButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "800",
     color: "#FFFFFF",
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
   },
 
   expandedSection: {
@@ -2419,6 +2404,7 @@ const styles = StyleSheet.create({
   },
 
   mealsList: {
+    paddingHorizontal: 20,
     paddingBottom: 100,
   },
 

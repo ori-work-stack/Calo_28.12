@@ -152,12 +152,11 @@ export const fetchCalendarData = createAsyncThunk(
     try {
       console.log("📅 Fetching calendar data for:", year, month);
       const data = await calendarAPI.getCalendarData(year, month);
-      return data;
-    } catch (error) {
+      console.log("✅ Calendar data received:", Object.keys(data || {}).length, "days");
+      return data || {};
+    } catch (error: any) {
       console.error("💥 Calendar data fetch error:", error);
-      return rejectWithValue(
-        error instanceof Error ? error.message : "Failed to fetch calendar data"
-      );
+      return {};
     }
   }
 );
@@ -171,12 +170,11 @@ export const getStatistics = createAsyncThunk(
     try {
       console.log("📊 Fetching statistics for:", year, month);
       const stats = await calendarAPI.getStatistics(year, month);
+      console.log("✅ Statistics received:", stats ? "success" : "null");
       return stats;
-    } catch (error) {
+    } catch (error: any) {
       console.error("💥 Statistics fetch error:", error);
-      return rejectWithValue(
-        error instanceof Error ? error.message : "Failed to fetch statistics"
-      );
+      return null;
     }
   }
 );
@@ -276,13 +274,14 @@ const calendarSlice = createSlice({
       })
       .addCase(fetchCalendarData.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.calendarData = action.payload;
+        state.calendarData = action.payload || {};
         state.error = null;
         state.lastUpdated = new Date().toISOString();
       })
       .addCase(fetchCalendarData.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        state.calendarData = {};
+        console.warn("⚠️ Calendar data fetch rejected, using empty data");
       })
 
       // Get statistics
